@@ -6,19 +6,21 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
   <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
-	<style type="text/css">
+	<link href="https://fonts.googleapis.com/css?family=Cousine" rel="stylesheet">
+  <style type="text/css">
     body {
       color: rgb(0, 128, 0);
 			background: rgb(0, 128, 0);
       margin: 0px;
-      cursor: pointer;
+      cursor: none;
       overflow: hidden;
 			text-align: center;
+      font-family: 'Cousine', monospace;
     }
 		.icon-loading {
 			/*margin-top: 25px;*/
 			position: absolute;
-			top: 35px;
+			top: 25px;
 			left: 50%;
 			margin-left: 16px;
 			z-index: 10;
@@ -28,6 +30,21 @@
 			z-index: 20;
 			position: relative;
 		}
+    .track-info {
+      color: white;
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      text-align: right;
+      /*line-height: 1.4;*/
+      font-size: 20px;
+      z-index: 30;
+      text-transform: lowercase;
+    }
+    .artist {
+      font-size: .8em;
+      margin-bottom: 10px;
+    }
   </style>
 
     <!--
@@ -42,7 +59,11 @@
 </head>
 
 <body>
-	<i class="fa fa-2x fa-spin fa-circle-o-notch icon-loading" aria-hidden="true"></i>
+	<i class="fa fa-lg fa-spin fa-circle-o-notch icon-loading" aria-hidden="true"></i>
+	<div class="track-info">
+		<div class="artist">Auntie Flo Feat. Anbuley</div>
+		<div class="track">Dance Ritual II</div>
+	</div>
 
   <script src="js/dist/stats.min.js"></script>
   <script>
