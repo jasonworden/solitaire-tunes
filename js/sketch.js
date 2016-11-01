@@ -26,7 +26,7 @@ var CARD_HEIGHT= 96,
 function preload() {
   song = loadSound(songFilepath);
   cardsImg = loadImage("cards.png");
-	background(0, 128, 0);
+	// background(0, 128, 0);
 }
 
 function setup() {
@@ -39,8 +39,6 @@ function setup() {
 
   fft = new p5.FFT();
   fft.setInput(song);
-
-  insertStatsGUI();
 }
 
 var THUD_SPECTRUM_INDEX = 1024/4;

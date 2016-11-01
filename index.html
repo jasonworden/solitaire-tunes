@@ -5,14 +5,30 @@
   <title>Auntie Flo ft. Anbuley - Dance Ritual II</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-  <style type="text/css">
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+	<style type="text/css">
     body {
-      color: #ffffff;
+      color: rgb(0, 128, 0);
+			background: rgb(0, 128, 0);
       margin: 0px;
       cursor: pointer;
       overflow: hidden;
+			text-align: center;
     }
-    </style>
+		.icon-loading {
+			/*margin-top: 25px;*/
+			position: absolute;
+			top: 35px;
+			left: 50%;
+			margin-left: 16px;
+			z-index: 10;
+			color: white;
+		}
+		canvas {
+			z-index: 20;
+			position: relative;
+		}
+  </style>
 
     <!--
     This p5.js sketch originates from Mr. Doob's Three.js solitaire example
@@ -26,6 +42,8 @@
 </head>
 
 <body>
+	<i class="fa fa-2x fa-spin fa-circle-o-notch icon-loading" aria-hidden="true"></i>
+
   <script src="js/dist/stats.min.js"></script>
   <script>
   function insertStatsGUI() {
