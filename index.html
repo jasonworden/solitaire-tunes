@@ -2,25 +2,51 @@
 <html lang="en">
 
 <head>
-	<title>Jason's Three.js Boilerplate</title>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-	<style>
-		body {
-			margin: 0px;
-			overflow: hidden;
-		}
-	</style>
+  <title>Auntie Flo ft. Anbuley - Dance Ritual II</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+  <style type="text/css">
+    body {
+      color: #ffffff;
+      margin: 0px;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    </style>
+
+    <!--
+    This p5.js sketch originates from Mr. Doob's Three.js solitaire example
+    http://mrdoob.com/lab/javascript/effects/solitaire/index.html
+
+    It has been ported to work in p5 and edited to react to a song instead of mouse actions.
+    Thanks Mr. Doob!
+
+    And thank you Auntie Flo!
+    -->
 </head>
 
 <body>
-	<!-- JS will append necessary DOM to the body -->
+  <script src="js/dist/stats.min.js"></script>
+  <script>
+  function insertStatsGUI() {
+    var stats = new Stats();
+    stats.domElement.style.bottom = '0px';
+    stats.domElement.style.right = '0px'
+    stats.domElement.style.left = ''
+    stats.domElement.style.top = '';
+    document.getElementsByTagName('body')[0].appendChild(stats.dom);
 
-	<script src="js/dist/three.js"></script>
-	<script src="js/dist/stats.min.js"></script>
-	<script src="js/dist/dat.gui.min.js"></script>
-	<script src="js/dist/controls/OrbitControls.js"></script>
-	<script src="js/sketch.js"></script>
+    window.monitorStats = stats;
+  }
+
+  //Run insertStatsGUI() in the console to add monitor stats;
+  // insertStatsGUI();
+  </script>
+
+  <script src="js/dist/p5/p5.js" type="text/javascript"></script>
+  <script src="js/dist/p5/p5.sound.js" type="text/javascript"></script>
+
+  <script src="js/p5-sketch.js" type="text/javascript"></script>
 </body>
 
 </html>

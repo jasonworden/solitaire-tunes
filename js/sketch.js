@@ -1,138 +1,178 @@
-var scene;
-var aspect;
-var camera;
-var renderer;
-var stats;
-var controls;
-var gridHelper;
-var body = document.getElementsByTagName('body')[0];
+var song;
+var fft;
 
-var sphere;
+var waitress;
 
-var CONTROLS__ORBIT = 'CONTROLS__ORBIT';
+var songFilepath = "auntie-flo-ft-anbuley-dance-ritual-ii.mp3";
 
-var CAMERA_PERSPECTIVE = 'CAMERA_PERSPECTIVE';
+var particles = [];
 
-function setup(params) {
-  var options = {
-    ambientLight: true,
-    camera: CAMERA_PERSPECTIVE,
-    directionLight: true,
-    controls: CONTROLS__ORBIT,
-    gridHelper: true,
-    stats: true,
-    orbitControls: {
-      enablePan: true,
-      enableZoom: true,
-      enableRotate: true
+var cardsImg;
+
+var id = 52;	//keep track of which card face to draw
+
+var timeAllotted = 0;
+
+var LOW=1, MED=2, HIGH=3;
+
+var FRAME_RATE__IDEAL = 60; //60 fps
+
+// c is for card:
+var CARD_WIDTH = 71,
+  CARD_WIDTH_HALF= CARD_WIDTH / 2;
+var CARD_HEIGHT= 96,
+  CARD_HEIGHT_HALF= CARD_HEIGHT/ 2;
+
+function preload() {
+  song = loadSound(songFilepath);
+  cardsImg = loadImage("cards.png");
+	background(0, 128, 0);
+}
+
+function setup() {
+  // frameRate(15);
+
+  createCanvas(windowWidth,windowHeight);
+  background(0, 128, 0);
+
+  song.loop(); // song is ready to play during setup() because it was loaded during preload
+
+  fft = new p5.FFT();
+  fft.setInput(song);
+
+  insertStatsGUI();
+}
+
+var THUD_SPECTRUM_INDEX = 1024/4;
+
+function draw() {
+  var timeAllottedNew = millis();
+  var timeDelta = timeAllottedNew - timeAllotted;
+  timeAllotted = timeAllottedNew;
+
+  background('rgba(0, 128, 0, .05)');
+
+  var spectrum = fft.analyze();
+  var thud_level = spectrum[THUD_SPECTRUM_INDEX];
+  if(thud_level > 123) {
+    handleThud(HIGH);
+  }
+  else if(thud_level > 105) {
+    handleThud(MED);
+  }
+  // else if(thud_level > 60) {
+  // 	handleThud(LOW);
+  // }
+
+  updateCards(timeDelta);
+
+  waitress = millis() + 10000; //something to do with optimizing resizing window code
+
+  if(window.monitorStats && window.monitorStats.update) {
+    window.monitorStats.update();
+  }
+}
+
+
+//////
+
+var Particle = function (id, x, y, sx, sy) {
+  var cx = ( id % 4 ) * CARD_WIDTH;
+  var cy = Math.floor( id / 4 ) * CARD_HEIGHT;
+  if (sx === 0) {
+    sx = 2;
+  }
+
+  this.update = function (delta) {
+    x += sx * (delta/1000 * FRAME_RATE__IDEAL);
+    y += sy * (delta/1000 * FRAME_RATE__IDEAL);
+
+    if ( x < - CARD_WIDTH || x > width ) {
+      //remove card from particles + no longer update it:
+      var index = particles.indexOf( this );
+      particles.splice( index, 1 );
+
+      return false;	//denotes card has been removed
     }
+
+    if ( y > height - CARD_HEIGHT) {
+      y = height - CARD_HEIGHT;
+      sy = - sy * 0.85;
+    }
+
+    sy += 0.98;
+
+    image(cardsImg, cx, cy, CARD_WIDTH, CARD_HEIGHT, x, y, CARD_WIDTH, CARD_HEIGHT);
+
+    return true;	//dentes card is still in particles array
   };
+}; //end of Particle constructor
 
-  if(params instanceof Object) {
-    //use params to overwrite defaults:
-    for (var prop in params) {
-        if (!params.hasOwnProperty(prop)) {
-          continue;
-        }
-        options[prop] = params[prop];
-    }
-  }
+var throwCard = function (x, y) {
+  id > 0 ? id -- : id = 51;
 
-  scene = new THREE.Scene();
-  aspect = window.innerWidth / window.innerHeight;
+  particles.push(new Particle(
+    id,
+    x,
+    y,
+    Math.floor( Math.random() * 6 - 3 ) * 2,
+    - Math.random() * 16
+  ));
+};
 
-  if(options.camera === CAMERA_PERSPECTIVE) {
-    //PerspectiveCamera(fov, aspect, near, far)
-    camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
-    camera.position.z = -5;
-    camera.position.y = 2;
+function handleThud(level) {
+  var w = width;
+  var h = height;
+  var iMax = level;
+  var maxH;
+
+  if(level === HIGH) {
+    maxH = h;
+  } else if(level === MED) {
+    maxH = h*2/3
   } else {
-    console.warn('Camera parameter not supported yet in boilerplate');
+    maxH = h/3
   }
 
-  if(!options.controls) {
-    //no camera controls
-  } else if(options.controls === CONTROLS__ORBIT) {
-    controls = new THREE.OrbitControls(camera);
-    if(!options.orbitControls.enablePan) {
-      controls.enablePan = false;
+  for(var i=0; i<iMax; ++i) {
+    var x = Math.floor( Math.random() * w );
+    var y = Math.floor( Math.random() * maxH );
+    for(var j=0; j<2; ++j) {
+      throwCard(x, y);
     }
-    if(!options.orbitControls.enableZoom) {
-      controls.enableZoom = false;
-    }
-    if(!options.orbitControls.enableRotate) {
-      controls.enableRotate = false;
-    }
+  }
+}
+
+function windowResized() {
+  waitress = millis() + 2000;
+  if (fullscreen()) {
+    resizeCanvas(displayWidth, displayHeight);
+    // background(0, 128, 0);
   } else {
-    console.warn('Camera controls parameter not supported yet in boilerplate');
+    resizeCanvas(windowWidth,windowHeight);
+    // background(0, 128, 0);
   }
-
-  if(options.gridHelper) {
-    gridHelper = new THREE.GridHelper(200, 40, 0x0000dd, 0x808080);
-    scene.add(gridHelper);
-  }
-
-  if(options.ambientLight) {
-    var light = new THREE.AmbientLight(0x404040); // soft white light
-    scene.add(light);
-  }
-
-  if(options.directionLight) {
-    var directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
-    directionalLight.position.set( 1, 1, -1.1 ).normalize();
-    scene.add( directionalLight );
-  }
-
-  if(options.stats) {
-    insertStatsGUI();
-  }
-
-  renderer = new THREE.WebGLRenderer({antialias: true});
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(renderer.domElement);
-
+  cursor();
+  showing = true;
+  // background(0);
 }
 
-function fillScene() {
-  //create ground
-  var groundPlaneGeometry = new THREE.PlaneGeometry(60,40,1,1);
-  var groundPlaneMaterial = new THREE.MeshLambertMaterial({color: 0xffffff});
-  var groundPlane = new THREE.Mesh(groundPlaneGeometry,groundPlaneMaterial);
-
-  addSphere();
-}
-
-function addSphere() {
-  var geometry = new THREE.SphereGeometry(2, 128, 128);
-  var material = new THREE.MeshPhongMaterial({
-    color: 0xff00ff,
-    specular: 0xeeeeee,
-    shininess: 25
-  });
-  sphere = new THREE.Mesh(geometry, material);
-  sphere.translateY(0.5);
-  scene.add(sphere);
-}
-
-function render() {
-  requestAnimationFrame(render);
-
-  if(stats && stats.update)         stats.update();
-  if(controls && controls.update)   controls.update();
-
-  renderer.render(scene, camera);
+function updateCards(delta) {
+  // var deltaInSeconds = clock.getDelta();
+  var i = 0,
+    l = particles.length;
+  while ( i < l ) {
+    particles[i].update(delta) ? i ++ : l --;
+  }
 }
 
 function insertStatsGUI() {
-  stats = new Stats();
+  var stats = new Stats();
   stats.domElement.style.bottom = '0px';
   stats.domElement.style.right = '0px'
   stats.domElement.style.left = ''
   stats.domElement.style.top = '';
-  body.appendChild(stats.dom);
-}
+  document.getElementsByTagName('body')[0].appendChild(stats.dom);
 
-setup();
-fillScene();
-render();
-insertStatsGUI();
+  window.monitorStats = stats;
+}
